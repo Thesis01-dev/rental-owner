@@ -37,7 +37,7 @@ const Login = ({ auth, firestore }) => {
 
   const navigate = useNavigate();
 
-  // Initialize login attempts and block status
+  // login attempts and block status
   useEffect(() => {
     const storedAttempts = localStorage.getItem('loginAttempts');
     const storedBlockEndTime = localStorage.getItem('blockEndTime');
@@ -152,7 +152,7 @@ const Login = ({ auth, firestore }) => {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       
-      // CHECK EMAIL VERIFICATION FIRST - This is the key fix
+      // CHECK EMAIL VERIFICATION
       if (!user.emailVerified) {
         setError('Please verify your email before logging in. Check your inbox for the verification link.');
         setLoading(false);
@@ -211,23 +211,23 @@ const Login = ({ auth, firestore }) => {
     handleFileChange(e, setBusinessRegistration, 'Business Registration');
   };
 
-  // Updated document upload function to use owner_docu/ folder structure
+  // document upload 
   const uploadDocument = async (userId, file, documentType) => {
     if (!file) return null;
     
     try {
-      // Make sure storage is properly imported and available
+     
       if (!storage) {
         throw new Error("Storage is not initialized. Check your firebase.js configuration.");
       }
       
-      // Create a file path that stores documents in owner_docu/ folder
+  
       const timestamp = new Date().getTime();
       const sanitizedBusinessName = businessName.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
       const fileExtension = file.name.split('.').pop();
       const fileName = `${sanitizedBusinessName}_${documentType}_${timestamp}.${fileExtension}`;
       
-      // Create the storage reference with owner_docu/ path structure
+  
       const storageRef = ref(
         storage, 
         `owner_docu/${userId}/${fileName}`
@@ -290,11 +290,11 @@ const Login = ({ auth, firestore }) => {
       // 2. Update profile with display name
       await updateProfile(user, { displayName: businessName });
 
-      // 3. Upload documents to owner_docu/ folder with specific document types
+      // 3. Upload documents 
       const permitData = await uploadDocument(user.uid, businessPermit, 'business_permit');
       const registrationData = await uploadDocument(user.uid, businessRegistration, 'business_registration');
 
-      // 4. Create user document in Firestore with emailVerified set to FALSE initially
+      // 4. Create user document with emailVerified 
       await setDoc(doc(db, "users", user.uid), {
         uid: user.uid,
         email: user.email,
@@ -309,14 +309,14 @@ const Login = ({ auth, firestore }) => {
         role: "owner",
         createdAt: serverTimestamp(),
         lastLogin: serverTimestamp(),
-        status: "pending", // Account is pending until admin approval
-        emailVerified: false // Initially set to false - will be updated when user verifies
+        status: "pending", 
+        emailVerified: false 
       });
 
       // 5. Send verification email
       await sendEmailVerification(user);
 
-      // 6. Show success alert with clear instructions
+      // 6. success alert 
       await Swal.fire({
         title: "Account Created Successfully!",
         html: `
@@ -605,7 +605,7 @@ const Login = ({ auth, firestore }) => {
                   />
                 </div>
 
-                {/* Business Permit Upload - Improved */}
+                {/* Business Permit Upload */}
                 <div>
                   <label htmlFor="business-permit" className="block text-sm font-medium text-white mb-1">
                     Business Permit <span className="text-red-400">*</span>
